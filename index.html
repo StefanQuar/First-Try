@@ -1,11 +1,533 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Meine Quiz-Seite</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <style>
+    /* Basic styling – we can improve this later */
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f5f5f5 url("background.jpg") center / cover no-repeat fixed;
+      position: relative;
+    }
+    h1 { text-align: center; }
+    .top-bar {
+      margin-bottom: 4rem;
+      min-height: 3rem;
+    }
+    .category-title-box {
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 0 0 6px 0;
+      padding: 0.75rem 1rem;
+      font-weight: bold;
+      font-size: 1rem;
+      z-index: 100;
+    }
+    .score-box {
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 0 0 0 6px;
+      padding: 0.75rem 1rem;
+      font-weight: bold;
+      font-size: 1rem;
+      z-index: 100;
+    }
+    .question-box {
+      background: white;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .score-line { text-align: center; margin-bottom: 0.5rem; font-weight: bold; }
+    .score-line:last-of-type { margin-bottom: 0; }
+    .question-text { font-size: 1.2rem; margin: 0; }
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+    button {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 2px solid #333;
+      background: white;
+      border-radius: 6px;
+    }
+    button:hover:not(:disabled) { background: #eee; }
+    button:disabled { cursor: default; opacity: 0.8; }
+    button.selected { background: #e6f0ff; border-color: #0066cc; }
+    button.correct { background: #a8e6a0; border-color: green; }
+    button.wrong { background: #ffb3b3; border-color: red; }
+    .submit-btn { margin-top: 1rem; width: 100%; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .submit-btn.hide { display: none; }
+    .fun-fact {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fff9e6;
+      border-left: 4px solid #e6c200;
+      border-radius: 4px;
+      display: none;
+    }
+    .fun-fact.show { display: block; }
+    .next-btn { margin-top: 1rem; width: 100%; display: none; }
+    .next-btn.show { display: block; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .category-screen { text-align: center; }
+    .category-main-title {
+      color: #ffffff;
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .category-screen h2 {
+      margin-bottom: 1.5rem;
+      color: #ffffff;
+      font-size: 2rem;
+    }
+    .category-layout { }
+    .category-btn {
+      width: 100%;
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      padding: 1rem;
+    }
+    .start-screen {
+      text-align: center;
+    }
+    .start-title {
+      color: red;
+      font-size: 6rem;
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    .start-subtitle {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-bottom: 2rem;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 6px;
+      padding: 1rem;
+      font-weight: 600;
+    }
+    .start-btn {
+      padding: 0.75rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: 2px solid #333;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+    .start-btn:hover {
+      background: #eee;
+    }
+    .question-count-box {
+      margin-top: 1.5rem;
+    }
+    .question-count-label {
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #ffffff;
+      font-size: 2rem;
+    }
+    .question-count-btn {
+      padding: 0.5rem 1rem;
+      margin: 0 0.25rem;
+      font-size: 1rem;
+      border: 2px solid #333;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+    .highscore-panel {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 6px 0 0 6px;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      min-width: 260px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      z-index: 90;
+    }
+    .highscore-panel h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+    .highscore-line {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+    .question-count-btn.selected {
+      background: #e6f0ff;
+      border-color: #0066cc;
+    }
+    .abort-btn {
+      margin-top: 0.5rem;
+      width: 100%;
+      background: #ffdddd;
+      border-color: #cc0000;
+    }
+    .abort-btn:hover {
+      background: #ffcccc;
+    }
+    .end-screen { text-align: center; }
+    .end-screen h2 { margin-bottom: 0.5rem; }
+    .end-screen p { margin-bottom: 1rem; }
+  </style>
 </head>
 <body>
-    <h1>Wer das ließt ist der Paddle Champion aka greatest Hakerman of all time, Dennis T. Gute Nacht und danke für die Hilfe!.</h1>
+  <!-- Start screen -->
+  <div id="start-screen" class="screen active">
+    <div class="start-screen">
+      <h1 class="start-title">Willkommen zum "Wer hats Quiz?"</h1>
+      <p class="start-subtitle">
+        Es handelt sich noch um die erste Alpha-Version eines in Zukunft immer weiter wachsenden Quizlern-Spiels, von dem du einer der ersten offiziellen Spieler aller Zeiten sein wirst. Ideen für weitere Kategorien, Spielmodi und alles Weitere bitte an den persönlichen Quiz-App-Entwickler deines Vertrauens.
+      </p>
+      <button type="button" id="enter-btn" class="start-btn">ENTER</button>
+    </div>
+  </div>
+
+  <!-- Category selection screen -->
+  <div id="category-screen" class="screen">
+    <h1 class="category-main-title">Das wer hat's Quiz</h1>
+    <div class="category-screen category-layout">
+      <div class="category-left">
+        <h2>Wähle eine Kategorie:</h2>
+        <button type="button" class="category-btn" data-category="Wer hat's erfunden?">Wer hat's erfunden?</button>
+        <button type="button" class="category-btn" data-category="Wer hat's gesagt?">Wer hat's gesagt?</button>
+        <button type="button" class="category-btn" data-category="Wer hat's gemacht?">Wer hat's gemacht?</button>
+        <p class="question-count-label">Wie viele Fragen möchtest du spielen?</p>
+        <div class="question-count-box">
+          <button type="button" class="question-count-btn selected" data-count="10">10</button>
+          <button type="button" class="question-count-btn" data-count="20">20</button>
+          <button type="button" class="question-count-btn" data-count="endless">Endlos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz screen: one question at a time -->
+  <div id="quiz-screen" class="screen">
+    <div class="top-bar">
+      <div id="category-title-box" class="category-title-box">Kategorie</div>
+      <div id="score-box" class="score-box">Punkte: 0</div>
+    </div>
+    <div class="question-box">
+      <p id="question-number" class="score-line">Frage 1 von 3</p>
+      <p id="question-text" class="question-text"></p>
+    </div>
+    <div id="options" class="options"></div>
+    <button type="button" id="submit-btn" class="submit-btn" disabled>Antwort absenden</button>
+    <div id="fun-fact-box" class="fun-fact"></div>
+    <button type="button" id="next-btn" class="next-btn">Nächste Frage</button>
+    <button type="button" id="abort-btn" class="abort-btn">Spiel beenden</button>
+  </div>
+
+  <!-- End screen: final score and restart -->
+  <div id="end-screen" class="screen">
+    <h1>Quiz beendet!</h1>
+    <div class="end-screen">
+      <h2>Dein Ergebnis</h2>
+      <p id="final-score"></p>
+      <button type="button" id="restart-btn">Nochmal spielen</button>
+      <button type="button" id="back-to-categories-btn">Kategorie wählen</button>
+    </div>
+  </div>
+
+  <!-- Highscore panel (always visible) -->
+  <div id="highscore-panel" class="highscore-panel">
+    <h3>Highscores</h3>
+    <p id="hs-erfunden" class="highscore-line">High score in "Wer hat's erfunden?": 0</p>
+    <p id="hs-gesagt" class="highscore-line">High score in "Wer hat's gesagt?": 0</p>
+    <p id="hs-gemacht" class="highscore-line">High score in "Wer hat's gemacht?": 0</p>
+    <button type="button" id="reset-highscores-btn" class="question-count-btn" style="margin-top:0.5rem;">Reset</button>
+  </div>
+
+  <!-- 1. Load the question catalog -->
+  <script src="questions.js"></script>
+  <!-- 2. Game logic -->
+  <script>
+    const startScreen = document.getElementById("start-screen");
+    const enterBtn = document.getElementById("enter-btn");
+    const categoryScreen = document.getElementById("category-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const endScreen = document.getElementById("end-screen");
+    const categoryTitleBox = document.getElementById("category-title-box");
+    const scoreBox = document.getElementById("score-box");
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsEl = document.getElementById("options");
+    const funFactBox = document.getElementById("fun-fact-box");
+    const submitBtn = document.getElementById("submit-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const finalScoreEl = document.getElementById("final-score");
+    const restartBtn = document.getElementById("restart-btn");
+    const backToCategoriesBtn = document.getElementById("back-to-categories-btn");
+    const categoryButtons = document.querySelectorAll(".category-btn");
+    const questionCountButtons = document.querySelectorAll(".question-count-btn");
+    const abortBtn = document.getElementById("abort-btn");
+    const hsErfundenEl = document.getElementById("hs-erfunden");
+    const hsGesagtEl = document.getElementById("hs-gesagt");
+    const hsGemachtEl = document.getElementById("hs-gemacht");
+    const resetHighscoresBtn = document.getElementById("reset-highscores-btn");
+
+    let currentCategory = null;
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let selectedIndex = null;
+    let answered = false;
+    let totalQuestions = 0;
+    let questionMode = "10"; // "10", "20" oder "endless"
+    const HIGH_SCORE_KEY = "wer_hats_quiz_highscores";
+    let highScores = {
+      "Wer hat's erfunden?": 0,
+      "Wer hat's gesagt?": 0,
+      "Wer hat's gemacht?": 0
+    };
+
+    function loadHighScores() {
+      try {
+        const raw = localStorage.getItem(HIGH_SCORE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          highScores = Object.assign(highScores, parsed);
+        }
+      } catch (e) {
+        // ignore parse errors, keep defaults
+      }
+    }
+
+    function saveHighScores() {
+      try {
+        localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(highScores));
+      } catch (e) {
+        // ignore storage errors silently
+      }
+    }
+
+    function renderHighScores() {
+      hsErfundenEl.textContent =
+        "High score in \"Wer hat's erfunden?\": " + (highScores["Wer hat's erfunden?"] || 0);
+      hsGesagtEl.textContent =
+        "High score in \"Wer hat's gesagt?\": " + (highScores["Wer hat's gesagt?"] || 0);
+      hsGemachtEl.textContent =
+        "High score in \"Wer hat's gemacht?\": " + (highScores["Wer hat's gemacht?"] || 0);
+    }
+
+    function updateHighScore(categoryName, newScore) {
+      if (newScore > (highScores[categoryName] || 0)) {
+        highScores[categoryName] = newScore;
+        saveHighScores();
+        renderHighScores();
+      }
+    }
+
+    function resetHighScores() {
+      highScores = {
+        "Wer hat's erfunden?": 0,
+        "Wer hat's gesagt?": 0,
+        "Wer hat's gemacht?": 0
+      };
+      saveHighScores();
+      renderHighScores();
+    }
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function setQuestionMode(mode) {
+      questionMode = mode;
+      questionCountButtons.forEach(function (btn) {
+        if (btn.dataset.count === mode) {
+          btn.classList.add("selected");
+        } else {
+          btn.classList.remove("selected");
+        }
+      });
+    }
+
+    function startCategory(categoryName) {
+      currentCategory = categoryName;
+      const allQuestions = QUESTIONS[categoryName];
+      const shuffled = shuffleArray(allQuestions);
+      if (questionMode === "endless") {
+        currentQuestions = shuffled;
+        totalQuestions = currentQuestions.length;
+      } else {
+        const limit = questionMode === "20" ? 20 : 10;
+        currentQuestions = shuffled.slice(0, Math.min(limit, shuffled.length));
+        totalQuestions = currentQuestions.length;
+      }
+      currentIndex = 0;
+      score = 0;
+      
+      categoryTitleBox.textContent = categoryName;
+      scoreBox.textContent = "Punkte: 0";
+      categoryScreen.classList.remove("active");
+      quizScreen.classList.add("active");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = currentQuestions[currentIndex];
+      selectedIndex = null;
+      answered = false;
+      if (questionMode === "endless") {
+        questionNumberEl.textContent = "Frage " + (currentIndex + 1);
+      } else {
+        questionNumberEl.textContent = "Frage " + (currentIndex + 1) + " von " + totalQuestions;
+      }
+      scoreBox.textContent = "Punkte: " + score;
+      questionTextEl.textContent = q.question;
+
+      optionsEl.innerHTML = "";
+      q.options.forEach(function (text, index) {
+        const btn = document.createElement("button");
+        btn.textContent = text;
+        btn.dataset.index = index;
+        btn.addEventListener("click", onOptionClick);
+        optionsEl.appendChild(btn);
+      });
+
+      submitBtn.disabled = true;
+      submitBtn.classList.remove("hide");
+      funFactBox.classList.remove("show");
+      funFactBox.textContent = "";
+      nextBtn.classList.remove("show");
+    }
+
+    function onOptionClick(event) {
+      if (answered) return;
+      const btn = event.target;
+      const index = parseInt(btn.dataset.index, 10);
+      const buttons = optionsEl.querySelectorAll("button");
+
+      selectedIndex = index;
+      buttons.forEach(function (b) {
+        b.classList.remove("selected");
+        if (parseInt(b.dataset.index, 10) === index) b.classList.add("selected");
+      });
+      submitBtn.disabled = false;
+    }
+
+    function onSubmitClick() {
+      if (selectedIndex === null || answered) return;
+      answered = true;
+      const q = currentQuestions[currentIndex];
+      const buttons = optionsEl.querySelectorAll("button");
+
+      buttons.forEach(function (b) { b.disabled = true; });
+      buttons.forEach(function (b) { b.classList.remove("selected"); });
+
+      if (selectedIndex === q.correctIndex) {
+        score += 1;
+        buttons[selectedIndex].classList.add("correct");
+      } else {
+        buttons[selectedIndex].classList.add("wrong");
+        buttons[q.correctIndex].classList.add("correct");
+      }
+
+      scoreBox.textContent = "Punkte: " + score;
+      if (currentCategory) {
+        updateHighScore(currentCategory, score);
+      }
+      funFactBox.textContent = "Wissenswertes: " + q.funFact;
+      funFactBox.classList.add("show");
+      submitBtn.classList.add("hide");
+      nextBtn.classList.add("show");
+    }
+
+    function onNextClick() {
+      currentIndex += 1;
+      if (questionMode === "endless") {
+        if (currentIndex >= currentQuestions.length) {
+          currentQuestions = shuffleArray(currentQuestions);
+          currentIndex = 0;
+        }
+        showQuestion();
+      } else {
+        if (currentIndex >= totalQuestions) {
+          updateHighScore(currentCategory, score);
+          quizScreen.classList.remove("active");
+          endScreen.classList.add("active");
+          finalScoreEl.textContent = score + " von " + totalQuestions;
+        } else {
+          showQuestion();
+        }
+      }
+    }
+
+    function restart() {
+      endScreen.classList.remove("active");
+      startCategory(currentCategory);
+    }
+
+    function backToCategories() {
+      endScreen.classList.remove("active");
+      categoryScreen.classList.add("active");
+    }
+
+    function goToCategories() {
+      startScreen.classList.remove("active");
+      categoryScreen.classList.add("active");
+    }
+
+    function abortGame() {
+      if (currentCategory) {
+        updateHighScore(currentCategory, score);
+      }
+      quizScreen.classList.remove("active");
+      categoryScreen.classList.add("active");
+    }
+
+    categoryButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        startCategory(btn.dataset.category);
+      });
+    });
+
+    questionCountButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        setQuestionMode(btn.dataset.count);
+      });
+    });
+
+    submitBtn.addEventListener("click", onSubmitClick);
+    nextBtn.addEventListener("click", onNextClick);
+    restartBtn.addEventListener("click", restart);
+    backToCategoriesBtn.addEventListener("click", backToCategories);
+    enterBtn.addEventListener("click", goToCategories);
+    abortBtn.addEventListener("click", abortGame);
+    resetHighscoresBtn.addEventListener("click", resetHighScores);
+
+    loadHighScores();
+    renderHighScores();
+  </script>
 </body>
 </html>
+
+
 
 
