@@ -104,6 +104,49 @@
     .start-screen {
       text-align: center;
     }
+    .account-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      width: min(90%, 420px);
+      box-shadow: 0 2px 18px rgba(0,0,0,0.3);
+    }
+    .modal-content h3 { margin-top: 0; }
+    .modal-content .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.7rem;
+    }
+    .modal-content input {
+      padding: 0.5rem;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .modal-close {
+      margin-top: 0.4rem;
+      width: 100%;
+      background: #ddd;
+      border-color: #888;
+    }
     .start-title {
       color: red;
       font-size: 6rem;
@@ -198,7 +241,61 @@
       <p class="start-subtitle">
         Es handelt sich noch um die erste Alpha-Version eines in Zukunft immer weiter wachsenden Quizlern-Spiels, von dem du einer der ersten offiziellen Spieler aller Zeiten sein wirst. Ideen für weitere Kategorien, Spielmodi und alles Weitere bitte an den persönlichen Quiz-App-Entwickler deines Vertrauens.
       </p>
-      <button type="button" id="enter-btn" class="start-btn">ENTER</button>
+      <div class="account-controls">
+        <button type="button" id="login-btn" class="start-btn">Login</button>
+        <button type="button" id="register-btn" class="start-btn">Registrieren</button>
+        <button type="button" id="profile-btn" class="start-btn">Profil</button>
+        <button type="button" id="logout-btn" class="start-btn" style="display:none;">Abmelden</button>
+      </div>
+      <button type="button" id="enter-btn" class="start-btn">ENTERTEN</button>
+    </div>
+  </div>
+
+  <div id="login-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Login</h3>
+      <div class="form-row">
+        <label for="login-username">Benutzername</label>
+        <input id="login-username" type="text" autocomplete="username" />
+      </div>
+      <div class="form-row">
+        <label for="login-password">Passwort</label>
+        <input id="login-password" type="password" autocomplete="current-password" />
+      </div>
+      <button type="button" id="login-submit-btn">Einloggen</button>
+      <button type="button" id="login-close-btn" class="modal-close">Schließen</button>
+      <p id="login-error" style="color:red; margin-top:0.5rem;"></p>
+    </div>
+  </div>
+
+  <div id="register-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Registrieren</h3>
+      <div class="form-row">
+        <label for="register-username">Benutzername</label>
+        <input id="register-username" type="text" autocomplete="username" />
+      </div>
+      <div class="form-row">
+        <label for="register-password">Passwort</label>
+        <input id="register-password" type="password" autocomplete="new-password" />
+      </div>
+      <div class="form-row">
+        <label for="register-password-confirm">Passwort bestätigen</label>
+        <input id="register-password-confirm" type="password" autocomplete="new-password" />
+      </div>
+      <button type="button" id="register-submit-btn">Registrieren</button>
+      <button type="button" id="register-close-btn" class="modal-close">Schließen</button>
+      <p id="register-error" style="color:red; margin-top:0.5rem;"></p>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Profil</h3>
+      <p id="profile-username"></p>
+      <p id="profile-summary"></p>
+      <div id="profile-stats"></div>
+      <button type="button" id="profile-close-btn" class="modal-close">Schließen</button>
     </div>
   </div>
 
@@ -295,11 +392,210 @@
     let totalQuestions = 0;
     let questionMode = "10"; // "10", "20" oder "endless"
     const HIGH_SCORE_KEY = "wer_hats_quiz_highscores";
+    const USER_DATA_KEY = "wer_hats_quiz_users";
+    const CURRENT_USER_KEY = "wer_hats_quiz_current_user";
     let highScores = {
       "Wer hat's erfunden?": 0,
       "Wer hat's gesagt?": 0,
       "Wer hat's gemacht?": 0
     };
+
+    function readUsers() {
+      const raw = localStorage.getItem(USER_DATA_KEY);
+      if (!raw) return {};
+      try {
+        return JSON.parse(raw) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function writeUsers(users) {
+      localStorage.setItem(USER_DATA_KEY, JSON.stringify(users));
+    }
+
+    function getCurrentUsername() {
+      return localStorage.getItem(CURRENT_USER_KEY) || null;
+    }
+
+    function setCurrentUsername(username) {
+      if (username) {
+        localStorage.setItem(CURRENT_USER_KEY, username);
+      } else {
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
+      updateAuthUI();
+    }
+
+    function getUserObject(username) {
+      const users = readUsers();
+      return users[username] || null;
+    }
+
+    function setUserObject(username, userData) {
+      const users = readUsers();
+      users[username] = userData;
+      writeUsers(users);
+    }
+
+    function hashPassword(str) {
+      // very simple hash for localStorage prototype (NOT production-secure)
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return String(hash);
+    }
+
+    function ensureStats(userData) {
+      if (!userData.stats) {
+        userData.stats = {};
+      }
+      Object.keys(QUESTIONS).forEach((cat) => {
+        if (!userData.stats[cat]) {
+          userData.stats[cat] = { played: 0, correct: 0, wrong: 0 };
+        }
+      });
+    }
+
+    function registerUser(username, password, passwordConfirm) {
+      const errorEl = document.getElementById("register-error");
+      errorEl.textContent = "";
+      username = username.trim();
+      if (!username || !password) {
+        errorEl.textContent = "Bitte Benutzername und Passwort eingeben.";
+        return false;
+      }
+      if (password !== passwordConfirm) {
+        errorEl.textContent = "Passwörter stimmen nicht überein.";
+        return false;
+      }
+      const users = readUsers();
+      if (users[username]) {
+        errorEl.textContent = "Benutzername existiert bereits.";
+        return false;
+      }
+      const userData = {
+        passwordHash: hashPassword(password),
+        stats: {}
+      };
+      ensureStats(userData);
+      setUserObject(username, userData);
+      setCurrentUsername(username);
+      return true;
+    }
+
+    function loginUser(username, password) {
+      const errorEl = document.getElementById("login-error");
+      errorEl.textContent = "";
+      username = username.trim();
+      if (!username || !password) {
+        errorEl.textContent = "Bitte Benutzername und Passwort eingeben.";
+        return false;
+      }
+      const userData = getUserObject(username);
+      if (!userData) {
+        errorEl.textContent = "Benutzername nicht gefunden.";
+        return false;
+      }
+      if (userData.passwordHash !== hashPassword(password)) {
+        errorEl.textContent = "Falsches Passwort.";
+        return false;
+      }
+      ensureStats(userData);
+      setUserObject(username, userData);
+      setCurrentUsername(username);
+      return true;
+    }
+
+    function logoutUser() {
+      setCurrentUsername(null);
+    }
+
+    function updateAuthUI() {
+      const user = getCurrentUsername();
+      const profileBtn = document.getElementById("profile-btn");
+      const logoutBtn = document.getElementById("logout-btn");
+      const enterBtn = document.getElementById("enter-btn");
+      if (user) {
+        profileBtn.disabled = false;
+        logoutBtn.style.display = "inline-block";
+        enterBtn.textContent = "Weiter als " + user;
+      } else {
+        profileBtn.disabled = true;
+        logoutBtn.style.display = "none";
+        enterBtn.textContent = "ENTERTEN";
+      }
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+      if (id === "login-modal") {
+        document.getElementById("login-username").value = "";
+        document.getElementById("login-password").value = "";
+        document.getElementById("login-error").textContent = "";
+      }
+      if (id === "register-modal") {
+        document.getElementById("register-username").value = "";
+        document.getElementById("register-password").value = "";
+        document.getElementById("register-password-confirm").value = "";
+        document.getElementById("register-error").textContent = "";
+      }
+    }
+
+    function showProfile() {
+      const username = getCurrentUsername();
+      if (!username) {
+        alert("Bitte zuerst einloggen oder registrieren.");
+        return;
+      }
+      const profileUsernameEl = document.getElementById("profile-username");
+      const profileSummaryEl = document.getElementById("profile-summary");
+      const profileStatsEl = document.getElementById("profile-stats");
+      const userData = getUserObject(username);
+      if (!userData) return;
+      profileUsernameEl.textContent = "Angemeldet als: " + username;
+      let totalPlayed = 0;
+      let totalCorrect = 0;
+      let totalWrong = 0;
+      profileStatsEl.innerHTML = "";
+      Object.keys(userData.stats || {}).forEach((cat) => {
+        const catStats = userData.stats[cat];
+        totalPlayed += catStats.played || 0;
+        totalCorrect += catStats.correct || 0;
+        totalWrong += catStats.wrong || 0;
+        const line = document.createElement("p");
+        line.textContent = `${cat}: gespielt ${catStats.played}, richtig ${catStats.correct}, falsch ${catStats.wrong}`;
+        profileStatsEl.appendChild(line);
+      });
+      profileSummaryEl.textContent = `Gesamt: ${totalPlayed} Fragen, ${totalCorrect} richtig, ${totalWrong} falsch`;
+      openModal("profile-modal");
+    }
+
+    function updateUserStats(category, correct) {
+      const username = getCurrentUsername();
+      if (!username) return;
+      const userData = getUserObject(username);
+      if (!userData) return;
+      ensureStats(userData);
+      const catStats = userData.stats[category];
+      catStats.played += 1;
+      if (correct) {
+        catStats.correct += 1;
+      } else {
+        catStats.wrong += 1;
+      }
+      setUserObject(username, userData);
+    }
 
     function loadHighScores() {
       try {
@@ -441,12 +737,17 @@
       buttons.forEach(function (b) { b.disabled = true; });
       buttons.forEach(function (b) { b.classList.remove("selected"); });
 
-      if (selectedIndex === q.correctIndex) {
+      const correctAnswer = selectedIndex === q.correctIndex;
+      if (correctAnswer) {
         score += 1;
         buttons[selectedIndex].classList.add("correct");
       } else {
         buttons[selectedIndex].classList.add("wrong");
         buttons[q.correctIndex].classList.add("correct");
+      }
+
+      if (currentCategory) {
+        updateUserStats(currentCategory, correctAnswer);
       }
 
       scoreBox.textContent = "Punkte: " + score;
@@ -522,8 +823,64 @@
     abortBtn.addEventListener("click", abortGame);
     resetHighscoresBtn.addEventListener("click", resetHighScores);
 
+    const loginBtn = document.getElementById("login-btn");
+    const registerBtn = document.getElementById("register-btn");
+    const profileBtn = document.getElementById("profile-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const loginSubmitBtn = document.getElementById("login-submit-btn");
+    const loginCloseBtn = document.getElementById("login-close-btn");
+    const registerSubmitBtn = document.getElementById("register-submit-btn");
+    const registerCloseBtn = document.getElementById("register-close-btn");
+    const profileCloseBtn = document.getElementById("profile-close-btn");
+
+    loginBtn.addEventListener("click", function () {
+      openModal("login-modal");
+    });
+
+    registerBtn.addEventListener("click", function () {
+      openModal("register-modal");
+    });
+
+    profileBtn.addEventListener("click", showProfile);
+
+    logoutBtn.addEventListener("click", function () {
+      logoutUser();
+      alert("Du bist jetzt abgemeldet.");
+    });
+
+    loginSubmitBtn.addEventListener("click", function () {
+      const u = document.getElementById("login-username").value;
+      const p = document.getElementById("login-password").value;
+      if (loginUser(u, p)) {
+        closeModal("login-modal");
+      }
+    });
+
+    loginCloseBtn.addEventListener("click", function () {
+      closeModal("login-modal");
+    });
+
+    registerSubmitBtn.addEventListener("click", function () {
+      const u = document.getElementById("register-username").value;
+      const p = document.getElementById("register-password").value;
+      const pc = document.getElementById("register-password-confirm").value;
+      if (registerUser(u, p, pc)) {
+        closeModal("register-modal");
+        alert("Registrierung erfolgreich. Du bist eingeloggt als " + u);
+      }
+    });
+
+    registerCloseBtn.addEventListener("click", function () {
+      closeModal("register-modal");
+    });
+
+    profileCloseBtn.addEventListener("click", function () {
+      closeModal("profile-modal");
+    });
+
     loadHighScores();
     renderHighScores();
+    updateAuthUI();
   </script>
 </body>
 </html>
