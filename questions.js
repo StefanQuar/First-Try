@@ -1493,3 +1493,275 @@ const QUESTIONS = {
     }
   ]
 };
+
+const GENERAL_QUESTIONS = [
+    {
+      question: 'Was ist die Hauptstadt von Frankreich?',
+      options: ['Berlin', 'Madrid', 'Paris', 'Rom'],
+      correctIndex: 2,
+      funFact: 'Paris ist die Hauptstadt und bevölkerungsreichste Stadt Frankreichs.'
+    },
+    {
+      question: 'Welcher Ozean ist der größte?',
+      options: ['Atlantik', 'Pazifik', 'Indischer Ozean', 'Arktischer Ozean'],
+      correctIndex: 1,
+      funFact: 'Der Pazifik bedeckt etwa 30% der Erdoberfläche.'
+    },
+    {
+      question: 'Welcher Fluss ist der längste der Welt?',
+      options: ['Nile', 'Amazonas', 'Yangtze', 'Mississippi'],
+      correctIndex: 0,
+      funFact: 'Der Nil ist mit rund 6650 km Länge der längste Fluss.'
+    },
+    {
+      question: 'Wie heißt der höchste Berg der Erde?',
+      options: ['K2', 'Mount Everest', 'Kangchendzönga', 'Lhotse'],
+      correctIndex: 1,
+      funFact: 'Der Mount Everest ist 8848 m hoch.'
+    },
+    {
+      question: 'Welche Währung hat Japan?',
+      options: ['Yen', 'Dollar', 'Euro', 'Pfund'],
+      correctIndex: 0,
+      funFact: 'Der japanische Yen ist seit 1871 in Gebrauch.'
+    },
+    {
+      question: 'Welches Land hat vier Amtssprachen (Deutsch, Französisch, Italienisch, Rätoromanisch)?',
+      options: ['Belgien', 'Schweiz', 'Kanada', 'Südafrika'],
+      correctIndex: 1,
+      funFact: 'In der Schweiz sind vier Sprachen offiziell.'
+    },
+    {
+      question: 'Welches Land hat keine Hauptstadt?',
+      options: ['Vatican City', 'Monaco', 'Nicaragua', 'Luxemburg'],
+      correctIndex: 0,
+      funFact: 'Der Vatikan ist der kleinste Staat und die Stadt ist zugleich Staat.'
+    },
+    {
+      question: 'Was ist die Hauptstadt von Australien?',
+      options: ['Sydney', 'Melbourne', 'Canberra', 'Brisbane'],
+      correctIndex: 2,
+      funFact: 'Canberra wurde als Kompromiss Hauptstadt.'
+    },
+    {
+      question: 'Welches Land ist flächenmäßig das größte?',
+      options: ['Kanada', 'USA', 'China', 'Russland'],
+      correctIndex: 3,
+      funFact: 'Russland ist mit 17 Mio km² das größte Land.'
+    },
+    {
+      question: 'In welcher Wüste befindet sich der Mount Everest?',
+      options: ['Sahara', 'Gobi', 'Antarktis', 'Da nicht in einer Wüste normalerweise'],
+      correctIndex: 3,
+      funFact: 'Everest liegt im Himalaya, nicht in einer Wüste.'
+    },
+    {
+      question: 'Welches Element hat das chemische Symbol O?',
+      options: ['Gold', 'Silber', 'Oxygen', 'Kupfer'],
+      correctIndex: 2,
+      funFact: 'Sauerstoff hat das Symbol O.'
+    },
+    {
+      question: 'Wie viele Planeten hat unser Sonnensystem?',
+      options: ['7', '8', '9', '10'],
+      correctIndex: 1,
+      funFact: 'Nach der Aberkennung von Pluto sind es 8 Planeten.'
+    },
+    {
+      question: 'Wer malte die Mona Lisa?',
+      options: ['Vincent van Gogh', 'Pablo Picasso', 'Leonardo da Vinci', 'Michelangelo'],
+      correctIndex: 2,
+      funFact: 'Leonardo da Vinci malte die Mona Lisa.'
+    },
+    {
+      question: 'Welche Sprache hat die meisten Muttersprachler?',
+      options: ['Englisch', 'Spanisch', 'Arabisch', 'Mandarin'],
+      correctIndex: 3,
+      funFact: 'Mandarin-Chinesisch hat die meisten Muttersprachler.'
+    },
+    {
+      question: 'Welches Jahr markiert den Beginn des 21. Jahrhunderts?',
+      options: ['1999', '2000', '2001', '2002'],
+      correctIndex: 2,
+      funFact: 'Das 21. Jahrhundert begann 2001.'
+    },
+    {
+      question: 'Was ist die chemische Formel für Wasser?',
+      options: ['H2O', 'CO2', 'O2', 'NaCl'],
+      correctIndex: 0,
+      funFact: 'Wasser ist H2O.'
+    },
+    {
+      question: 'Welches Land gewann die Fußball-Weltmeisterschaft 2014?',
+      options: ['Brasilien', 'Deutschland', 'Argentinien', 'Spanien'],
+      correctIndex: 1,
+      funFact: 'Deutschland gewann 2014 in Brasilien.'
+    },
+    {
+      question: 'Welche Farbe entsteht durch Mischung von Blau und Gelb?',
+      options: ['Grün', 'Violett', 'Orange', 'Braun'],
+      correctIndex: 0,
+      funFact: 'Blau + Gelb ergibt Grün.'
+    },
+    {
+      question: 'Wie viele Kontinente gibt es?',
+      options: ['5', '6', '7', '8'],
+      correctIndex: 2,
+      funFact: 'Erdteile: Afrika, Antarktika, Asien, Europa, Nordamerika, Südamerika, Australien.'
+    },
+    {
+      question: 'Welcher Planet ist der rote Planet?',
+      options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
+      correctIndex: 1,
+      funFact: 'Mars wird als roter Planet bezeichnet.'
+    },
+    {
+      question: 'Wer schrieb „Faust“?',
+      options: ['Goethe', 'Schiller', 'Brecht', 'Kant'],
+      correctIndex: 0,
+      funFact: 'Johann Wolfgang von Goethe schrieb Faust.'
+    },
+    {
+      question: 'Welcher Vogel ist bekannt für seinen bunten Schwanz und lauten Ruf?',
+      options: ['Spatz', 'Pfau', 'Taube', 'Rabe'],
+      correctIndex: 1,
+      funFact: 'Der Pfau hat ein prächtiges Rad.'
+    },
+    {
+      question: 'Welche Einheit misst elektrische Stromstärke?',
+      options: ['Volt', 'Ampere', 'Ohm', 'Watt'],
+      correctIndex: 1,
+      funFact: 'Die Einheit ist Ampere.'
+    },
+    {
+      question: 'Welches Gas atmen Menschen zum Leben ein?',
+      options: ['Kohlendioxid', 'Sauerstoff', 'Stickstoff', 'Helium'],
+      correctIndex: 1,
+      funFact: 'Menschen atmen Sauerstoff ein.'
+    },
+    {
+      question: 'Wie heißt das größte Säugetier der Erde?',
+      options: ['Elefant', 'Blauwal', 'Giraffe', 'Kuh'],
+      correctIndex: 1,
+      funFact: 'Der Blauwal ist das größte Tier.'
+    },
+    {
+      question: 'Welcher Kontinent ist hauptsächlich von Wüste bedeckt?',
+      options: ['Europa', 'Nordamerika', 'Antarktika', 'Afrika'],
+      correctIndex: 3,
+      funFact: 'Afrika hat Sahara und andere Wüsten.'
+    },
+    {
+      question: 'Wer entdeckte die Schwerkraft durch einen fallenden Apfel?',
+      options: ['Isaac Newton', 'Albert Einstein', 'Galileo', 'Nikola Tesla'],
+      correctIndex: 0,
+      funFact: 'Newton beschrieb die Gravitation.'
+    },
+    {
+      question: 'Wie viele Minuten hat eine Stunde?',
+      options: ['50', '55', '60', '65'],
+      correctIndex: 2,
+      funFact: '1 Stunde = 60 Minuten.'
+    },
+    {
+      question: 'Welche Farben hat die deutsche Flagge?',
+      options: ['Schwarz-Rot-Gold', 'Grün-Weiß-Rot', 'Blau-Weiß-Rot', 'Schwarz-Weiß-Rot'],
+      correctIndex: 0,
+      funFact: 'Die deutsche Flagge ist Schwarz-Rot-Gold.'
+    },
+    {
+      question: 'Was ist der längste Fluss Europas?',
+      options: ['Donau', 'Wolga', 'Rhein', 'Elbe'],
+      correctIndex: 1,
+      funFact: 'Die Wolga ist der längste Fluss Europas.'
+    },
+    {
+      question: 'Wie viele Planeten haben Ringe?',
+      options: ['1', '2', '3', '4'],
+      correctIndex: 3,
+      funFact: 'Jupiter, Saturn, Uranus, Neptun haben Ringsysteme.'
+    },
+    {
+      question: 'Welches Land ist bekannt als die „Wiege der Demokratie“?',
+      options: ['Rom', 'USA', 'Griechenland', 'England'],
+      correctIndex: 2,
+      funFact: 'Griechenland, insbesondere Athen.'
+    },
+    {
+      question: 'Welche berühmte Mauer befindet sich in China?',
+      options: ['Great Wall', 'Hadrian’s Wall', 'Berliner Mauer', 'Mauer von Adriano'],
+      correctIndex: 0,
+      funFact: 'Die Chinesische Mauer ist über 21.000 km lang.'
+    },
+    {
+      question: 'Wie viele Nullen hat eine Million?',
+      options: ['3', '6', '9', '12'],
+      correctIndex: 1,
+      funFact: 'Eine Million hat 6 Nullen.'
+    },
+    {
+      question: 'Welches Tier kann den höchsten Sprung ausführen?',
+      options: ['Frosch', 'Känguru', 'Grashüpfer', 'Steinbock'],
+      correctIndex: 1,
+      funFact: 'Kängurus können sehr hoch springen.'
+    },
+    {
+      question: 'Was ist die häufigste Blutgruppe weltweit?',
+      options: ['A', 'B', 'AB', '0'],
+      correctIndex: 3,
+      funFact: '0 positiv ist sehr häufig.'
+    },
+    {
+      question: 'Wie viele Tasten hat ein Standardklavier?',
+      options: ['76', '80', '88', '92'],
+      correctIndex: 2,
+      funFact: 'Ein Standardklavier hat 88 Tasten.'
+    },
+    {
+      question: 'Welches Instrument ist eine Holzblasinstrumente?',
+      options: ['Violine', 'Oboe', 'Trompete', 'Trommel'],
+      correctIndex: 1,
+      funFact: 'Oboe ist Holzblasinstrument.'
+    },
+    {
+      question: 'Welches Land ist Herkunftsland von Sushi?',
+      options: ['China', 'Korea', 'Japan', 'Thailand'],
+      correctIndex: 2,
+      funFact: 'Sushi stammt aus Japan.'
+    },
+    {
+      question: 'Welches Land holte Tennis-Großerfolg durch Roger Federer?',
+      options: ['USA', 'Schweiz', 'Spanien', 'Australien'],
+      correctIndex: 1,
+      funFact: 'Roger Federer ist Schweizer.'
+    },
+    {
+      question: 'In welchem Sport fährt man Eishockey?',
+      options: ['Basketball', 'Eishockey', 'Fußball', 'Rugby'],
+      correctIndex: 1,
+      funFact: 'Eishockey wird auf Eis gespielt.'
+    },
+    {
+      question: 'Welcher Künstler malte die Sternennacht?',
+      options: ['Van Gogh', 'Da Vinci', 'Picasso', 'Monet'],
+      correctIndex: 0,
+      funFact: 'Vincent van Gogh malte Starry Night.'
+    },
+    {
+      question: 'Welches Material verwendet man für Glas hauptsächlich?',
+      options: ['Holz', 'Sand', 'Metall', 'Kunststoff'],
+      correctIndex: 1,
+      funFact: 'Glas wird aus Quarzsand hergestellt.'
+    },
+    {
+      question: 'Wie heißt die kleinste Einheit digitaler Informationen?',
+      options: ['Byte', 'Bit', 'Nibble', 'Kilobyte'],
+      correctIndex: 1,
+      funFact: 'Eine Bit ist ein binäres Digit.'
+    },
+];
+
+["Geographie", "Musik", "Filme", "Sport", "Kunst"].forEach(category => {
+  QUESTIONS[category] = GENERAL_QUESTIONS;
+});
+

@@ -111,6 +111,36 @@
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
+    .mode-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      min-width: 180px;
+    }
+    .mode-btn.selected {
+      background: #e6f0ff;
+      border-color: #0066cc;
+    }
+    .profile-floating-btn {
+      position: fixed;
+      top: 8px;
+      right: 10px;
+      z-index: 110;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .back-btn {
+      margin-top: 0.75rem;
+      width: 100%;
+      border-color: #666;
+      background: #f0f0f0;
+    }
     .modal-overlay {
       display: none;
       position: fixed;
@@ -234,20 +264,24 @@
   </style>
 </head>
 <body>
+  <button id="profile-floating-btn" class="profile-floating-btn">Profil</button>
   <!-- Start screen -->
   <div id="start-screen" class="screen active">
     <div class="start-screen">
-      <h1 class="start-title">Willkommen zum "Wer hats Quiz?"</h1>
+      <h1 class="start-title">Willkommen zum Quiz</h1>
       <p class="start-subtitle">
-        Es handelt sich noch um die erste Alpha-Version eines in Zukunft immer weiter wachsenden Quizlern-Spiels, von dem du einer der ersten offiziellen Spieler aller Zeiten sein wirst. Ideen für weitere Kategorien, Spielmodi und alles Weitere bitte an den persönlichen Quiz-App-Entwickler deines Vertrauens.
+        Es handelt sich noch um die erste Alpha-Version eines in Zukunft immer weiter wachsenden Quizlern-Spiels. Du kannst hier anmelden, spielen und dein persönliches Profil mit Statistik ansehen.
       </p>
       <div class="account-controls">
         <button type="button" id="login-btn" class="start-btn">Login</button>
         <button type="button" id="register-btn" class="start-btn">Registrieren</button>
-        <button type="button" id="profile-btn" class="start-btn">Profil</button>
         <button type="button" id="logout-btn" class="start-btn" style="display:none;">Abmelden</button>
       </div>
-      <button type="button" id="enter-btn" class="start-btn">ENTERTEN</button>
+      <div class="mode-controls">
+        <button type="button" class="mode-btn selected" data-mode="werhats">Wer hat's Quiz</button>
+        <button type="button" class="mode-btn" data-mode="allgemein">Großes Allgemeinwissensquiz</button>
+      </div>
+      <button type="button" id="enter-btn" class="start-btn">Zum Kategorie-Menü</button>
     </div>
   </div>
 
@@ -301,19 +335,18 @@
 
   <!-- Category selection screen -->
   <div id="category-screen" class="screen">
-    <h1 class="category-main-title">Das wer hat's Quiz</h1>
-    <div class="category-screen category-layout">
+    <h1 id="category-title" class="category-main-title">Kategorien wählen</h1>
+    <div class="category-screen">
       <div class="category-left">
         <h2>Wähle eine Kategorie:</h2>
-        <button type="button" class="category-btn" data-category="Wer hat's erfunden?">Wer hat's erfunden?</button>
-        <button type="button" class="category-btn" data-category="Wer hat's gesagt?">Wer hat's gesagt?</button>
-        <button type="button" class="category-btn" data-category="Wer hat's gemacht?">Wer hat's gemacht?</button>
+        <div id="category-list" class="category-layout"></div>
         <p class="question-count-label">Wie viele Fragen möchtest du spielen?</p>
         <div class="question-count-box">
           <button type="button" class="question-count-btn selected" data-count="10">10</button>
           <button type="button" class="question-count-btn" data-count="20">20</button>
           <button type="button" class="question-count-btn" data-count="endless">Endlos</button>
         </div>
+        <button type="button" id="back-to-start-btn" class="back-btn">Zurück zur Startseite</button>
       </div>
     </div>
   </div>
@@ -333,6 +366,7 @@
     <div id="fun-fact-box" class="fun-fact"></div>
     <button type="button" id="next-btn" class="next-btn">Nächste Frage</button>
     <button type="button" id="abort-btn" class="abort-btn">Spiel beenden</button>
+    <button type="button" id="home-btn" class="back-btn">Zurück zur Startseite</button>
   </div>
 
   <!-- End screen: final score and restart -->
@@ -349,9 +383,7 @@
   <!-- Highscore panel (always visible) -->
   <div id="highscore-panel" class="highscore-panel">
     <h3>Highscores</h3>
-    <p id="hs-erfunden" class="highscore-line">High score in "Wer hat's erfunden?": 0</p>
-    <p id="hs-gesagt" class="highscore-line">High score in "Wer hat's gesagt?": 0</p>
-    <p id="hs-gemacht" class="highscore-line">High score in "Wer hat's gemacht?": 0</p>
+    <div id="highscore-lines"></div>
     <button type="button" id="reset-highscores-btn" class="question-count-btn" style="margin-top:0.5rem;">Reset</button>
   </div>
 
@@ -375,12 +407,15 @@
     const finalScoreEl = document.getElementById("final-score");
     const restartBtn = document.getElementById("restart-btn");
     const backToCategoriesBtn = document.getElementById("back-to-categories-btn");
-    const categoryButtons = document.querySelectorAll(".category-btn");
+    const backToStartBtn = document.getElementById("back-to-start-btn");
+    const categoryList = document.getElementById("category-list");
+    const categoryTitleEl = document.getElementById("category-title");
+    const modeButtons = document.querySelectorAll(".mode-btn");
     const questionCountButtons = document.querySelectorAll(".question-count-btn");
     const abortBtn = document.getElementById("abort-btn");
-    const hsErfundenEl = document.getElementById("hs-erfunden");
-    const hsGesagtEl = document.getElementById("hs-gesagt");
-    const hsGemachtEl = document.getElementById("hs-gemacht");
+    const profileFloatingBtn = document.getElementById("profile-floating-btn");
+    const homeBtn = document.getElementById("home-btn");
+    const highscoreLines = document.getElementById("highscore-lines");
     const resetHighscoresBtn = document.getElementById("reset-highscores-btn");
 
     let currentCategory = null;
@@ -391,14 +426,24 @@
     let answered = false;
     let totalQuestions = 0;
     let questionMode = "10"; // "10", "20" oder "endless"
+    let selectedQuizMode = "werhats";
     const HIGH_SCORE_KEY = "wer_hats_quiz_highscores";
     const USER_DATA_KEY = "wer_hats_quiz_users";
     const CURRENT_USER_KEY = "wer_hats_quiz_current_user";
-    let highScores = {
-      "Wer hat's erfunden?": 0,
-      "Wer hat's gesagt?": 0,
-      "Wer hat's gemacht?": 0
-    };
+    let highScores = {};
+
+    function normalizeHighScores() {
+      Object.keys(QUESTIONS).forEach((cat) => {
+        if (!(cat in highScores)) {
+          highScores[cat] = 0;
+        }
+      });
+      Object.keys(highScores).forEach((cat) => {
+        if (!QUESTIONS[cat]) {
+          delete highScores[cat];
+        }
+      });
+    }
 
     function readUsers() {
       const raw = localStorage.getItem(USER_DATA_KEY);
@@ -457,6 +502,47 @@
           userData.stats[cat] = { played: 0, correct: 0, wrong: 0 };
         }
       });
+    }
+
+    function getCategoriesForMode(mode) {
+      if (mode === "werhats") {
+        return ["Wer hat's erfunden?", "Wer hat's gesagt?", "Wer hat's gemacht?"];
+      }
+      if (mode === "allgemein") {
+        return ["Geographie", "Musik", "Filme", "Sport", "Kunst"];
+      }
+      return [];
+    }
+
+    function renderCategoryButtons() {
+      categoryList.innerHTML = "";
+      const categories = getCategoriesForMode(selectedQuizMode);
+      categoryTitleEl.textContent = selectedQuizMode === "werhats" ? "Das Wer hat's Quiz" : "Großes Allgemeinwissensquiz";
+      categories.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = cat;
+        btn.className = "category-btn";
+        btn.dataset.category = cat;
+        btn.addEventListener("click", function () {
+          startCategory(cat);
+        });
+        categoryList.appendChild(btn);
+      });
+    }
+
+    function setQuizMode(mode) {
+      selectedQuizMode = mode;
+      modeButtons.forEach((btn) => {
+        if (btn.dataset.mode === mode) {
+          btn.classList.add("selected");
+        } else {
+          btn.classList.remove("selected");
+        }
+      });
+      if (categoryScreen.classList.contains("active")) {
+        renderCategoryButtons();
+      }
     }
 
     function registerUser(username, password, passwordConfirm) {
@@ -519,13 +605,15 @@
       const logoutBtn = document.getElementById("logout-btn");
       const enterBtn = document.getElementById("enter-btn");
       if (user) {
-        profileBtn.disabled = false;
+        if (profileBtn) profileBtn.disabled = false;
+        profileFloatingBtn.disabled = false;
         logoutBtn.style.display = "inline-block";
         enterBtn.textContent = "Weiter als " + user;
       } else {
-        profileBtn.disabled = true;
+        if (profileBtn) profileBtn.disabled = true;
+        profileFloatingBtn.disabled = true;
         logoutBtn.style.display = "none";
-        enterBtn.textContent = "ENTERTEN";
+        enterBtn.textContent = "Zum Kategorie-Menü";
       }
     }
 
@@ -607,6 +695,7 @@
       } catch (e) {
         // ignore parse errors, keep defaults
       }
+      normalizeHighScores();
     }
 
     function saveHighScores() {
@@ -618,12 +707,14 @@
     }
 
     function renderHighScores() {
-      hsErfundenEl.textContent =
-        "High score in \"Wer hat's erfunden?\": " + (highScores["Wer hat's erfunden?"] || 0);
-      hsGesagtEl.textContent =
-        "High score in \"Wer hat's gesagt?\": " + (highScores["Wer hat's gesagt?"] || 0);
-      hsGemachtEl.textContent =
-        "High score in \"Wer hat's gemacht?\": " + (highScores["Wer hat's gemacht?"] || 0);
+      highscoreLines.innerHTML = "";
+      Object.keys(QUESTIONS).forEach((categoryName) => {
+        const row = document.createElement("p");
+        row.className = "highscore-line";
+        row.textContent =
+          `High score in "${categoryName}": ${highScores[categoryName] || 0}`;
+        highscoreLines.appendChild(row);
+      });
     }
 
     function updateHighScore(categoryName, newScore) {
@@ -635,11 +726,8 @@
     }
 
     function resetHighScores() {
-      highScores = {
-        "Wer hat's erfunden?": 0,
-        "Wer hat's gesagt?": 0,
-        "Wer hat's gemacht?": 0
-      };
+      highScores = {};
+      normalizeHighScores();
       saveHighScores();
       renderHighScores();
     }
@@ -793,6 +881,7 @@
     function goToCategories() {
       startScreen.classList.remove("active");
       categoryScreen.classList.add("active");
+      renderCategoryButtons();
     }
 
     function abortGame() {
@@ -803,17 +892,33 @@
       categoryScreen.classList.add("active");
     }
 
-    categoryButtons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        startCategory(btn.dataset.category);
-      });
-    });
-
     questionCountButtons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         setQuestionMode(btn.dataset.count);
       });
     });
+
+    modeButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        setQuizMode(btn.dataset.mode);
+      });
+    });
+
+    backToStartBtn.addEventListener("click", function () {
+      startScreen.classList.add("active");
+      categoryScreen.classList.remove("active");
+      quizScreen.classList.remove("active");
+      endScreen.classList.remove("active");
+    });
+
+    homeBtn.addEventListener("click", function () {
+      startScreen.classList.add("active");
+      categoryScreen.classList.remove("active");
+      quizScreen.classList.remove("active");
+      endScreen.classList.remove("active");
+    });
+
+    profileFloatingBtn.addEventListener("click", showProfile);
 
     submitBtn.addEventListener("click", onSubmitClick);
     nextBtn.addEventListener("click", onNextClick);
@@ -841,7 +946,9 @@
       openModal("register-modal");
     });
 
-    profileBtn.addEventListener("click", showProfile);
+    if (profileBtn) {
+      profileBtn.addEventListener("click", showProfile);
+    }
 
     logoutBtn.addEventListener("click", function () {
       logoutUser();
